@@ -13,7 +13,7 @@ To begin our reconnaissance, we need to identify the IP address of the Mercury m
 ```bash
 sudo netdiscover
 ```
-![](1.png)
+![](-Writeups/VulnHub/All_Images/mercury/1.png)
 
 **Netdiscover** is a network reconnaissance tool used primarily for discovering live hosts on a local network. In this case, we find that the target machine is **192.168.56.101**.
 
@@ -31,11 +31,11 @@ Now, let's try connecting to the target service using **192.168.56.101:8080** in
 
 Upon accessing the site, we discover three directories. Let's explore **192.168.56.101:8080/mercuryfacts/**, which leads us to two sub-directories: **mercury-facts** and **to-do-list**. The **to-do-list** does not have any exploits, so we will focus on **mercury-facts**.
 
-![](4.png)
-![](5.png)
-![](6.png)
-![](7.png)
-![](8.png)
+![](-Writeups/VulnHub/All_Images/mercury/4.png)
+![](-Writeups/VulnHub/All_Images/mercury/5.png)
+![](-Writeups/VulnHub/All_Images/mercury/6.png)
+![](-Writeups/VulnHub/All_Images/mercury/7.png)
+![](-Writeups/VulnHub/All_Images/mercury/8.png)
 
 ### SQL Injection Vulnerability
 The **mercury-facts** page appears to be vulnerable to **SQL injection** attacks. SQL injection is a code injection technique that allows attackers to execute malicious SQL statements, potentially compromising sensitive data. We will use **sqlmap** to exploit this vulnerability:
@@ -43,11 +43,11 @@ The **mercury-facts** page appears to be vulnerable to **SQL injection** attacks
 ```bash
 sqlmap -u http://192.168.56.101:8080/mercuryfacts/1 --dump-all
 ```
-![](9.png)
+![](-Writeups/VulnHub/All_Images/mercury/9.png)
 
 This command will dump all the databases on the target server. We are particularly interested in the database containing usernames and passwords.
 
-![](10.png)
+![](-Writeups/VulnHub/All_Images/mercury/10.png)
 
 After running the command, we find the following credentials:
 - **Username**: webmaster
@@ -55,8 +55,8 @@ After running the command, we find the following credentials:
 
 Now, let's attempt to log in using these credentials.
 
-![](11.png)
-![](12.png)
+![](-Writeups/VulnHub/All_Images/mercury/11.png)
+![](-Writeups/VulnHub/All_Images/mercury/12.png)
 
 ---
 
@@ -66,17 +66,17 @@ After logging in, we explore the target machine and find the user flag. Further 
 ```bash
 echo "base64_encoded_string" | base64 -d
 ```
-![](13.png)
+![](-Writeups/VulnHub/All_Images/mercury/13.png)
 
 The decoded password is **mercurymeandiameteris4880km**. 
 
 Next, we log in as **linuxmaster**. Running the `ls` command shows no files or directories. To check for commands we can run with root privileges, we execute:
-![](14.png)
+![](-Writeups/VulnHub/All_Images/mercury/14.png)
 
 ```bash
 sudo -l
 ```
-![](15.png)
+![](-Writeups/VulnHub/All_Images/mercury/15.png)
 
 This reveals that **/usr/bin/check_syslog.sh** can be run as root. The script only shows the last 10 lines of the system log.
 
@@ -102,10 +102,11 @@ Finally, we run our **rootbash** executable with:
 ```bash
 /tmp/rootbash -p
 ```
-![](16.png)
+![](-Writeups/VulnHub/All_Images/mercury/16.png)
 
 The -p option starts a new shell with root user privileges. We can now access the root directory and find the root flag.
-Conclusion
+
+### Conclusion
 
 This write-up outlines the steps taken to exploit vulnerabilities in the Mercury machine from VulnHub. The process involved reconnaissance, identifying SQL injection vulnerabilities, and escalating privileges to gain root access. Understanding these techniques is crucial for penetration testing and improving security measures against such attacks.
 
